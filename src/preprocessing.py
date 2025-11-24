@@ -9,10 +9,13 @@ def build_core_dataset(
   min_reviews=2,
   save_name="ratings_core_for_graph.csv",
 ):
+<<<<<<< HEAD
   # Total counts before filtering
   total_ratings = len(df_ratings_clean)
   total_users = df_ratings_clean["user_id"].nunique()
   total_books = df_ratings_clean["book_id"].nunique()
+=======
+>>>>>>> 40f72b54e3d9773c9bc3d0b9047b0dcd1fd4762f
   # Compute the number of reviews per user and per book
   user_counts = df_ratings_clean["user_id"].value_counts()
   book_counts = df_ratings_clean["book_id"].value_counts()
@@ -26,6 +29,7 @@ def build_core_dataset(
       & df_ratings_clean["book_id"].isin(active_books)
   ].copy()
 
+<<<<<<< HEAD
   # Counts after filtering
   core_ratings = len(df_core)
   core_users = df_core["user_id"].nunique()
@@ -34,6 +38,12 @@ def build_core_dataset(
   print("Shape df_core:", df_core.shape)
   print("Distinct users in core:", core_users)
   print("Distinct books in core:", core_books)
+=======
+  # Print some information about the core dataset
+  print("Shape df_core:", df_core.shape)
+  print("Distinct users in core:", df_core["user_id"].nunique())
+  print("Distinct books in core:", df_core["book_id"].nunique())
+>>>>>>> 40f72b54e3d9773c9bc3d0b9047b0dcd1fd4762f
   print(df_core.head())
 
   # Build the full path for the output file and save the core dataset

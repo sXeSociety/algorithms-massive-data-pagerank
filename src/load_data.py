@@ -53,7 +53,6 @@ def load_ratings (
   ensure_dirs([processed_dir])
   # Build the path to the ratings file
   ratings_path = ratings_file_path(raw_dir)
-<<<<<<< HEAD
   # Build the path to the cleaned file in processed_dir
   clean_path = os.path.join(processed_dir, save_clean_name)
   # If we already have the cleaned file, just load it and return it
@@ -63,8 +62,6 @@ def load_ratings (
       print("Shape df_ratings_clean (loaded from disk):", df_ratings_clean.shape)
       print(df_ratings_clean.head())
       return df_ratings_clean
-=======
->>>>>>> 40f72b54e3d9773c9bc3d0b9047b0dcd1fd4762f
   # Check that the ratings file exists
   if not os.path.exists(ratings_path):
       raise FileNotFoundError(f"ERROR: ratings file not found at {ratings_path}")

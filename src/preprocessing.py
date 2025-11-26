@@ -11,11 +11,6 @@ def build_core_dataset(
   save_name="ratings_core_for_graph.csv",
 ):
 
-  # Total counts before filtering
-  total_ratings = len(df_ratings_clean)
-  total_users = df_ratings_clean["user_id"].nunique()
-  total_books = df_ratings_clean["book_id"].nunique()
-
   # Compute the number of reviews per user and per book
   user_counts = df_ratings_clean["user_id"].value_counts()
   book_counts = df_ratings_clean["book_id"].value_counts()
@@ -37,11 +32,6 @@ def build_core_dataset(
   print("Shape df_core:", df_core.shape)
   print("Distinct users in core:", core_users)
   print("Distinct books in core:", core_books)
-
-  # Print some information about the core dataset
-  print("Shape df_core:", df_core.shape)
-  print("Distinct users in core:", df_core["user_id"].nunique())
-  print("Distinct books in core:", df_core["book_id"].nunique())
 
   print(df_core.head())
 
@@ -65,17 +55,13 @@ def build_core_subset(
   total_ratings = len(df_core)
   total_users = df_core["user_id"].nunique()
   total_books = df_core["book_id"].nunique()
-  print("\n[build_core_subset] Starting from core dataset")
-  print(f"Total ratings: {total_ratings}")
-  print(f"Distinct users: {total_users}")
-  print(f"Distinct books: {total_books}")
-
+  
   df_subset = df_core.copy()
 
   # Select a subset of users
   if max_users is not None:
     # Get all distinct user_ids and sort them to have a deterministic selection
-    unique_users = np.sort()
+    unique_users = np.sort(df_core["user_id"].unique())
     # Take the first max_users
     selected_users = unique_users[:max_users]
     print(f"\n[build_core_subset] Limiting to first {len(selected_users)} users.")

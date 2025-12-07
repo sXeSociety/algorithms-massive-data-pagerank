@@ -95,9 +95,10 @@ def load_ratings (
       columns={
           "User_id": "user_id",
           "Id": "book_id",
+          "Title": "book_title",
           "review/score": "rating",
       }
-  )[["user_id", "book_id", "rating"]]
+  )[["user_id", "book_id", "book_title", "rating"]]
 
   print("Shape df_ratings_clean:", df_ratings_clean.shape)
   print(df_ratings_clean.head())

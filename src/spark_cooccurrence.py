@@ -2,6 +2,7 @@ import os
 from itertools import combinations
 import pandas as pd
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 # Create and return a Spark session
 def create_spark_session(app_name="BookCooccurrenceSparkBig", master="local[*]"):
@@ -33,11 +34,18 @@ def build_book_cooccurrence_edges_spark(
 
   print("\nSpark indexed ratings schema:")
   df_indexed_big_spark.printSchema()
-  # Keep only user and book indices
-  df_pairs = df_indexed_big_spark.select("user_idx", "book_idx")
+  # Keep only user and book indices and cast them to integer
+  df_pairs = (
+      df_indexed_big_spark
+      .select(
+          col("user_idx").cast("int").alias("user_idx"),
+          col("book_idx").cast("int").alias("book_idx"),
+      )
+      .where(col("user_idx").isNotNull() & col("book_idx").isNotNull())
+  )
   # Map to pairs of integers
   ratings_pairs_rdd = df_pairs.rdd.map(
-    lambda row: (int(row["user_idx"]), int(row["book_idx"])))
+    lambda row: (row["user_idx"], row["book_idx"]))
   print("\nSpark example user book pairs:")
   print(ratings_pairs_rdd.take(5))
 
@@ -50,11 +58,18 @@ def build_book_cooccurrence_edges_spark(
   # For each user emit all book pairs with count one
   def user_to_book_pairs(user_books):
       user_idx, books_iter = user_books
-      books = sorted(set(books_iter))
+      # Remove possible None values and deduplicate
+      books = [b for b in set(books_iter) if b is not None]
+      # Sort for deterministic pair generation
+      books = sorted(books)
+
+      # If the user has fewer than 2 books, no edges
       if len(books) < 2:
         return []
+      # Skip users with too many books
       if max_books_per_user is not None and len(books) > max_books_per_user:
         return []
+      # Generate all combinations of 2 different books
       pairs = [((b1, b2), 1) for b1, b2 in combinations(books, 2)]
       return pairs
   

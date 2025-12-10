@@ -34,13 +34,26 @@ def build_book_cooccurrence_edges_spark(
 
   print("\nSpark indexed ratings schema:")
   df_indexed_big_spark.printSchema()
-  # Keep only user and book indices
-  df_pairs = df_indexed_big_spark.select("user_idx", "book_idx")
-  # Map to pairs
+
+  # Keep only user and book indices and safely cast to int
+  # Malformed rows (e.g. ' ""Inimitable Jeeves""') will become NULL and be dropped
+  df_pairs = (
+      df_indexed_big_spark
+      .selectExpr(
+          "try_cast(user_idx as int) as user_idx_int",
+          "try_cast(book_idx as int) as book_idx_int"
+      )
+      .dropna(subset=["user_idx_int", "book_idx_int"])
+  )
+
+  print("\nSpark example df_pairs after safe cast and dropna:")
+  df_pairs.show(5)
+
+  # Map to pairs (they are already integers)
   ratings_pairs_rdd = df_pairs.rdd.map(
     lambda row: (
-        int(float(row["user_idx"])),
-        int(float(row["book_idx"]))
+        row["user_idx_int"],
+        row["book_idx_int"]
     )
   )
   print("\nSpark example user book pairs:")
@@ -63,7 +76,7 @@ def build_book_cooccurrence_edges_spark(
       pairs = [((b1, b2), 1) for b1, b2 in combinations(books, 2)]
       return pairs
   
-  # create pairs and count cooccurrences
+  # Create pairs and count cooccurrences
   book_pair_count_rdd = user_books_rdd.flatMap(user_to_book_pairs)
   print("\nSpark example book pair with count one:")
   print(book_pair_count_rdd.take(5))
